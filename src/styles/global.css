@@ -1,0 +1,40 @@
+/* src/styles/global.css */
+:root {
+    --primary: #4361ee;
+    /* Vibrant blue */
+    --secondary: #3f37c9;
+    --accent: #4cc9f0;
+    --dark: #1a1a2e;
+    --light: #f8f9fa;
+    --success: #4bb543;
+    --error: #ff3333;
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    background: #f5f7fa;
+    color: var(--dark);
+    margin: 0;
+    line-height: 1.6;
+}
+
+/* Smooth buttons and inputs */
+button,
+input {
+    font-family: inherit;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+button {
+    background: var(--primary);
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    cursor: pointer;
+}
+
+button:hover {
+    background: var(--secondary);
+    transform: translateY(-2px);
+}
