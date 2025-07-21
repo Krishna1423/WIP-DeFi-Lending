@@ -1,4 +1,10 @@
-import { Dashboard } from "./pages";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import Dashboard from "./pages/Dashboard";
+import Lend from "./pages/Lend";
+import Borrow from "./pages/Borrow";
+import MyLoans from "./pages/Loans";
+
+import NavBar from "./components/NavBar";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { config } from "./providers/wallet";
 import "@rainbow-me/rainbowkit/styles.css";
@@ -13,7 +19,9 @@ const App = () => {
     <WagmiProvider config={config}>
       <QueryClientProvider client={queryClient}>
         <RainbowKitProvider>
-          <AppContent />
+          <Router>
+            <AppContent />
+          </Router>
         </RainbowKitProvider>
       </QueryClientProvider>
     </WagmiProvider>
@@ -24,15 +32,23 @@ const AppContent = () => {
   const { isConnected } = useAccount();
 
   return (
-    <div className="p-4">
-      <ConnectButton />
-      {isConnected ? (
-        <Dashboard />
-      ) : (
-        <p className="mt-4 text-gray-600">
-          Please connect your wallet to view the dashboard.
-        </p>
-      )}
+    <div className="min-h-screen">
+      <NavBar />
+      <div className="p-4">
+        {isConnected ? (
+          <Routes>
+            <Route path="/" element={<Dashboard />} />
+            <Route path="/borrow" element={<Borrow />} />
+            <Route path="/lend" element={<Lend />} />
+            <Route path="/my-loans" element={<MyLoans />} />
+          </Routes>
+        ) : (
+          <div className="mt-4 text-gray-600 text-center">
+            <ConnectButton />
+            <p>Please connect your wallet to access the app.</p>
+          </div>
+        )}
+      </div>
     </div>
   );
 };

@@ -44,3 +44,41 @@ button {
 button:hover {
   transform: translateY(-1px);
 }
+
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #1e40af; /* blue-800 */
+  color: white;
+  padding: 0.75rem 1.5rem;
+}
+
+.logo {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: white;
+  text-decoration: none;
+}
+
+.nav-links {
+  display: flex;
+  gap: 1.5rem;
+}
+
+.nav-link {
+  text-decoration: none;
+  color: white;
+  font-weight: 500;
+  transition: color 0.3s;
+}
+
+.nav-link:hover,
+.nav-link.active {
+  color: #93c5fd; /* blue-300 */
+}
+
+.wallet-connect {
+  display: flex;
+  align-items: center;
+}

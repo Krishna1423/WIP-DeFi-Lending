@@ -1,35 +1,102 @@
 import { useState } from "react";
+import { useAccount } from "wagmi";
+import { ethers } from "ethers";
+import { useEthersSigner } from "../hooks/useEthersSigner";
+import { CONTRACT_ABI, CONTRACT_ADDRESS } from "../constants/contract";
+import { tokenAddressMap } from "../constants/tokens";
+import { useTokenDecimals } from "../hooks/useTokenDecimals";
 
 const LoanForm = () => {
+  const { address, isConnected, chain } = useAccount();
+  const signer = useEthersSigner({ chainId: chain?.id });
+
+  // Form state
+  const [loanToken, setLoanToken] = useState("ETH");
   const [loanAmount, setLoanAmount] = useState("");
   const [collateralToken, setCollateralToken] = useState("ETH");
   const [collateralAmount, setCollateralAmount] = useState("");
   const [duration, setDuration] = useState("");
   const [interestRate, setInterestRate] = useState("");
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState("");
+  const [txHash, setTxHash] = useState("");
+
+  // Add logic for equating tokens with addresses
+  const collateralTokenAddress = tokenAddressMap[collateralToken];
+  const loanTokenAddress = tokenAddressMap[loanToken];
+
+  //  Get decimals dynamically
+  const { decimals, error: decimalsError } = useTokenDecimals(loanTokenAddress);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError("");
+    setTxHash("");
 
-    // TODO: Add smart contract call logic
-    const loanData = {
-      loanAmount,
-      collateralToken,
-      collateralAmount,
-      duration,
-      interestRate,
-    };
+    if (!isConnected || !address || !signer) {
+      setError("Please connect your wallet.");
+      return;
+    }
 
-    console.log("Loan Request Data:", loanData);
-    alert("Loan request submitted (mock)");
+    if (!loanTokenAddress || !decimals) {
+      setError("Invalid loan token or decimals not loaded yet.");
+      return;
+    }
+
+    try {
+      setIsSubmitting(true);
+      const contract = new ethers.Contract(
+        CONTRACT_ADDRESS,
+        CONTRACT_ABI,
+        signer
+      );
+
+      const parsedLoanAmount = BigInt(parseInt(loanAmount, decimals));
+      const parsedCollateralAmount = BigInt(
+        parseInt(collateralAmount, decimals)
+      );
+      const parsedInterest = BigInt(parseInt(interestRate));
+      const parsedDuration = BigInt(parseInt(duration) * 24 * 60 * 60); // convert days → seconds
+
+      const tx = await contract.requestLoan(
+        collateralTokenAddress,
+        loanTokenAddress,
+        parsedCollateralAmount,
+        parsedLoanAmount,
+        parsedInterest,
+        parsedDuration
+      );
+
+      await tx.wait();
+      setTxHash(tx.hash);
+    } catch (err: any) {
+      console.error("Loan request error:", err);
+      setError(err.message || "Transaction failed.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
-
   return (
     <form
       onSubmit={handleSubmit}
-      className="loan-form p-6 bg-white rounded-xl shadow-md"
+      className="loan-form p-6 bg-white rounded-xl shadow-md max-w-md w-full mx-auto"
     >
       <h2 className="text-2xl font-semibold mb-4">Request a Loan</h2>
       <div className="space-y-4">
+        <div>
+          <label className="block text-sm font-medium mb-1">Loan Token</label>
+          <select
+            value={loanToken}
+            onChange={(e) => setLoanToken(e.target.value)}
+            className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-primary"
+          >
+            <option value="ETH">ETH</option>
+            <option value="WETH">WETH</option>
+            <option value="DAI">DAI</option>
+            <option value="USDC">USDC</option>
+          </select>
+        </div>
         <div>
           <label className="block text-sm font-medium mb-1">
             Loan Amount (DAI)
@@ -54,9 +121,9 @@ const LoanForm = () => {
             className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-primary"
           >
             <option value="ETH">ETH</option>
+            <option value="DAI">DAI</option>
             <option value="WETH">WETH</option>
             <option value="USDC">USDC</option>
-            {/* Add other supported tokens */}
           </select>
         </div>
 
@@ -76,7 +143,7 @@ const LoanForm = () => {
 
         <div>
           <label className="block text-sm font-medium mb-1">
-            Loan Duration (in days)
+            Loan Duration (days)
           </label>
           <input
             type="number"
@@ -104,13 +171,145 @@ const LoanForm = () => {
 
         <button
           type="submit"
-          className="w-full py-3 bg-primary hover:bg-secondary rounded-lg text-white font-medium"
+          disabled={isSubmitting}
+          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
         >
-          Submit Loan Request
+          {isSubmitting ? "Submitting..." : "Submit"}
         </button>
+
+        {txHash && (
+          <p className="mt-4 text-green-600">
+            Transaction successful! Tx Hash:{" "}
+            <a
+              href={`https://sepolia.etherscan.io/tx/${txHash}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="underline"
+            >
+              {txHash.slice(0, 10)}...
+            </a>
+          </p>
+        )}
+
+        {error && <p className="mt-4 text-red-600">Error: {error}</p>}
       </div>
     </form>
   );
 };
 
 export default LoanForm;
+
+// const LoanForm = ({ onClose }: { onClose?: () => void }) => {
+//   const [loanAmount, setLoanAmount] = useState("");
+//   const [collateralToken, setCollateralToken] = useState("ETH");
+//   const [collateralAmount, setCollateralAmount] = useState("");
+//   const [duration, setDuration] = useState("");
+//   const [interestRate, setInterestRate] = useState("");
+
+//   const handleSubmit = (e: React.FormEvent) => {
+//     e.preventDefault();
+
+//     // TODO: Add smart contract call logic
+//     const loanData = {
+//       loanAmount,
+//       collateralToken,
+//       collateralAmount,
+//       duration,
+//       interestRate,
+//     };
+
+//     console.log("Loan Request Data:", loanData);
+//     alert("Loan request submitted (mock)");
+//   };
+
+//   return (
+//     <form
+//       onSubmit={handleSubmit}
+//       className="loan-form p-6 bg-white rounded-xl shadow-md"
+//     >
+//       <h2 className="text-2xl font-semibold mb-4">Request a Loan</h2>
+//       <div className="space-y-4">
+//         <div>
+//           <label className="block text-sm font-medium mb-1">
+//             Loan Amount (DAI)
+//           </label>
+//           <input
+//             type="number"
+//             value={loanAmount}
+//             onChange={(e) => setLoanAmount(e.target.value)}
+//             className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-primary"
+//             placeholder="500"
+//             required
+//           />
+//         </div>
+
+//         <div>
+//           <label className="block text-sm font-medium mb-1">
+//             Collateral Token
+//           </label>
+//           <select
+//             value={collateralToken}
+//             onChange={(e) => setCollateralToken(e.target.value)}
+//             className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-primary"
+//           >
+//             <option value="ETH">ETH</option>
+//             <option value="WETH">WETH</option>
+//             <option value="USDC">USDC</option>
+//             {/* Add other supported tokens */}
+//           </select>
+//         </div>
+
+//         <div>
+//           <label className="block text-sm font-medium mb-1">
+//             Collateral Amount
+//           </label>
+//           <input
+//             type="number"
+//             value={collateralAmount}
+//             onChange={(e) => setCollateralAmount(e.target.value)}
+//             className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-primary"
+//             placeholder="0.1"
+//             required
+//           />
+//         </div>
+
+//         <div>
+//           <label className="block text-sm font-medium mb-1">
+//             Loan Duration (in days)
+//           </label>
+//           <input
+//             type="number"
+//             value={duration}
+//             onChange={(e) => setDuration(e.target.value)}
+//             className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-primary"
+//             placeholder="30"
+//             required
+//           />
+//         </div>
+
+//         <div>
+//           <label className="block text-sm font-medium mb-1">
+//             Interest Rate (%)
+//           </label>
+//           <input
+//             type="number"
+//             value={interestRate}
+//             onChange={(e) => setInterestRate(e.target.value)}
+//             className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-primary"
+//             placeholder="5"
+//             required
+//           />
+//         </div>
+
+//         <button
+//           type="submit"
+//           className="w-full py-3 bg-blue-600 hover:bg-blue-700 rounded-lg text-white font-medium"
+//         >
+//           Submit Loan Request
+//         </button>
+//       </div>
+//     </form>
+//   );
+// };
+
+// export default LoanForm;

@@ -1,0 +1,396 @@
+[
+  {
+    "inputs": [
+      {
+        "internalType": "uint128",
+        "name": "_loanId",
+        "type": "uint128"
+      }
+    ],
+    "name": "fundLoan",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address[]",
+        "name": "_allowedCollateral",
+        "type": "address[]"
+      },
+      {
+        "internalType": "address[]",
+        "name": "_allowedLoanTokens",
+        "type": "address[]"
+      }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "constructor"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "uint128",
+        "name": "loanId",
+        "type": "uint128"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "lender",
+        "type": "address"
+      }
+    ],
+    "name": "LoanFunded",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "uint128",
+        "name": "loanId",
+        "type": "uint128"
+      }
+    ],
+    "name": "LoanRepaid",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "uint128",
+        "name": "loanId",
+        "type": "uint128"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "borrower",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint128",
+        "name": "amount",
+        "type": "uint128"
+      }
+    ],
+    "name": "LoanRequested",
+    "type": "event"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint128",
+        "name": "_loanId",
+        "type": "uint128"
+      }
+    ],
+    "name": "repayLoan",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_collateralToken",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "_loanToken",
+        "type": "address"
+      },
+      {
+        "internalType": "uint128",
+        "name": "_collateralAmount",
+        "type": "uint128"
+      },
+      {
+        "internalType": "uint128",
+        "name": "_loanAmount",
+        "type": "uint128"
+      },
+      {
+        "internalType": "uint16",
+        "name": "_interestRate",
+        "type": "uint16"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_duration",
+        "type": "uint256"
+      }
+    ],
+    "name": "requestLoan",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "name": "allowedCollateralTokens",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "name": "allowedLoanTokens",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "user",
+        "type": "address"
+      }
+    ],
+    "name": "getUserLoanHistory",
+    "outputs": [
+      {
+        "components": [
+          {
+            "internalType": "address",
+            "name": "borrower",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "lender",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "collateralToken",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "loanToken",
+            "type": "address"
+          },
+          {
+            "internalType": "uint128",
+            "name": "collateralAmount",
+            "type": "uint128"
+          },
+          {
+            "internalType": "uint128",
+            "name": "loanAmount",
+            "type": "uint128"
+          },
+          {
+            "internalType": "uint16",
+            "name": "interestRate",
+            "type": "uint16"
+          },
+          {
+            "internalType": "uint256",
+            "name": "startTime",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "duration",
+            "type": "uint256"
+          },
+          {
+            "internalType": "bool",
+            "name": "isFunded",
+            "type": "bool"
+          },
+          {
+            "internalType": "bool",
+            "name": "isRepaid",
+            "type": "bool"
+          }
+        ],
+        "internalType": "struct DeFi.Loan[]",
+        "name": "",
+        "type": "tuple[]"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "user",
+        "type": "address"
+      }
+    ],
+    "name": "getUserStats",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "totalBorrowed",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "totalCollateral",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "activeLoans",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint128",
+        "name": "_loanId",
+        "type": "uint128"
+      }
+    ],
+    "name": "isOverdue",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "loanCounter",
+    "outputs": [
+      {
+        "internalType": "uint64",
+        "name": "",
+        "type": "uint64"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint128",
+        "name": "",
+        "type": "uint128"
+      }
+    ],
+    "name": "loans",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "borrower",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "lender",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "collateralToken",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "loanToken",
+        "type": "address"
+      },
+      {
+        "internalType": "uint128",
+        "name": "collateralAmount",
+        "type": "uint128"
+      },
+      {
+        "internalType": "uint128",
+        "name": "loanAmount",
+        "type": "uint128"
+      },
+      {
+        "internalType": "uint16",
+        "name": "interestRate",
+        "type": "uint16"
+      },
+      {
+        "internalType": "uint256",
+        "name": "startTime",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "duration",
+        "type": "uint256"
+      },
+      {
+        "internalType": "bool",
+        "name": "isFunded",
+        "type": "bool"
+      },
+      {
+        "internalType": "bool",
+        "name": "isRepaid",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "MIN_COLLATERAL_RATIO",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  }
+]

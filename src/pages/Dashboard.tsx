@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import LoanForm from "../components/LoanForm";
 
 const Dashboard = () => {
+  const [view, setView] = useState<"dashboard" | "lend">("dashboard");
   const { address, isConnected } = useAccount();
 
   const [loanStats, setLoanStats] = useState({
