@@ -5,6 +5,7 @@ import { useEthersSigner } from "../hooks/useEthersSigner";
 import { CONTRACT_ABI, CONTRACT_ADDRESS } from "../constants/contract";
 import { tokenAddressMap } from "../constants/tokens";
 import { useTokenDecimals } from "../hooks/useTokenDecimals";
+import { approveToken } from "../hooks/approveToken";
 
 const LoanForm = () => {
   const { address, isConnected, chain } = useAccount();
@@ -27,7 +28,10 @@ const LoanForm = () => {
   const loanTokenAddress = tokenAddressMap[loanToken];
 
   //  Get decimals dynamically
-  const { decimals, error: decimalsError } = useTokenDecimals(loanTokenAddress);
+  const { decimals: loanDecimals, error: decimalsError } =
+    useTokenDecimals(loanTokenAddress);
+  const { decimals: collateralDecimals, error: collateralDecimalsError } =
+    useTokenDecimals(collateralTokenAddress);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -39,7 +43,7 @@ const LoanForm = () => {
       return;
     }
 
-    if (!loanTokenAddress || !decimals) {
+    if (!loanTokenAddress || !loanDecimals) {
       setError("Invalid loan token or decimals not loaded yet.");
       return;
     }
@@ -52,12 +56,21 @@ const LoanForm = () => {
         signer
       );
 
-      const parsedLoanAmount = BigInt(parseInt(loanAmount, decimals));
-      const parsedCollateralAmount = BigInt(
-        parseInt(collateralAmount, decimals)
+      const parsedLoanAmount = ethers.parseUnits(loanAmount, loanDecimals);
+      const parsedCollateralAmount = ethers.parseUnits(
+        collateralAmount,
+        collateralDecimals
       );
-      const parsedInterest = BigInt(parseInt(interestRate));
-      const parsedDuration = BigInt(parseInt(duration) * 24 * 60 * 60); // convert days → seconds
+      const parsedInterest = BigInt(interestRate);
+      const parsedDuration =
+        BigInt(duration) * BigInt(24) * BigInt(60) * BigInt(60); // convert days to seconds
+
+      await approveToken(
+        collateralTokenAddress,
+        CONTRACT_ADDRESS,
+        parsedCollateralAmount,
+        signer
+      );
 
       const tx = await contract.requestLoan(
         collateralTokenAddress,
@@ -95,12 +108,11 @@ const LoanForm = () => {
             <option value="WETH">WETH</option>
             <option value="DAI">DAI</option>
             <option value="USDC">USDC</option>
+            <option value="EURC">EURC</option>
           </select>
         </div>
         <div>
-          <label className="block text-sm font-medium mb-1">
-            Loan Amount (DAI)
-          </label>
+          <label className="block text-sm font-medium mb-1">Loan Amount</label>
           <input
             type="number"
             value={loanAmount}
@@ -124,6 +136,7 @@ const LoanForm = () => {
             <option value="DAI">DAI</option>
             <option value="WETH">WETH</option>
             <option value="USDC">USDC</option>
+            <option value="EURC">EURC</option>
           </select>
         </div>
 
