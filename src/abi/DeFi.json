@@ -58,13 +58,13 @@
     "anonymous": false,
     "inputs": [
       {
-        "indexed": false,
+        "indexed": true,
         "internalType": "uint128",
         "name": "loanId",
         "type": "uint128"
       },
       {
-        "indexed": false,
+        "indexed": true,
         "internalType": "address",
         "name": "borrower",
         "type": "address"
@@ -102,13 +102,13 @@
     "anonymous": false,
     "inputs": [
       {
-        "indexed": false,
+        "indexed": true,
         "internalType": "uint128",
         "name": "loanId",
         "type": "uint128"
       },
       {
-        "indexed": false,
+        "indexed": true,
         "internalType": "address",
         "name": "lender",
         "type": "address"
@@ -121,9 +121,15 @@
     "anonymous": false,
     "inputs": [
       {
-        "indexed": false,
+        "indexed": true,
         "internalType": "uint128",
         "name": "loanId",
+        "type": "uint128"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint128",
+        "name": "amount",
         "type": "uint128"
       }
     ],
@@ -134,13 +140,13 @@
     "anonymous": false,
     "inputs": [
       {
-        "indexed": false,
+        "indexed": true,
         "internalType": "uint128",
         "name": "loanId",
         "type": "uint128"
       },
       {
-        "indexed": false,
+        "indexed": true,
         "internalType": "address",
         "name": "borrower",
         "type": "address"
@@ -150,6 +156,12 @@
         "internalType": "uint128",
         "name": "amount",
         "type": "uint128"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "loanToken",
+        "type": "address"
       }
     ],
     "name": "LoanRequested",
@@ -276,6 +288,11 @@
       {
         "components": [
           {
+            "internalType": "uint128",
+            "name": "loanId",
+            "type": "uint128"
+          },
+          {
             "internalType": "address",
             "name": "borrower",
             "type": "address"
@@ -346,6 +363,11 @@
       {
         "components": [
           {
+            "internalType": "uint128",
+            "name": "loanId",
+            "type": "uint128"
+          },
+          {
             "internalType": "address",
             "name": "borrower",
             "type": "address"
@@ -407,6 +429,75 @@
   {
     "inputs": [
       {
+        "internalType": "uint128",
+        "name": "loanId",
+        "type": "uint128"
+      }
+    ],
+    "name": "getLoanDetails",
+    "outputs": [
+      {
+        "internalType": "uint128",
+        "name": "",
+        "type": "uint128"
+      },
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      },
+      {
+        "internalType": "uint128",
+        "name": "",
+        "type": "uint128"
+      },
+      {
+        "internalType": "uint128",
+        "name": "",
+        "type": "uint128"
+      },
+      {
+        "internalType": "uint16",
+        "name": "",
+        "type": "uint16"
+      },
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      },
+      {
+        "internalType": "enum DeFi.LoanStatus",
+        "name": "",
+        "type": "uint8"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
         "internalType": "address",
         "name": "user",
         "type": "address"
@@ -416,6 +507,11 @@
     "outputs": [
       {
         "components": [
+          {
+            "internalType": "uint128",
+            "name": "loanId",
+            "type": "uint128"
+          },
           {
             "internalType": "address",
             "name": "borrower",
@@ -488,6 +584,11 @@
       {
         "components": [
           {
+            "internalType": "uint128",
+            "name": "loanId",
+            "type": "uint128"
+          },
+          {
             "internalType": "address",
             "name": "borrower",
             "type": "address"
@@ -557,14 +658,24 @@
     "name": "getUserStats",
     "outputs": [
       {
-        "internalType": "uint256",
-        "name": "totalBorrowed",
-        "type": "uint256"
+        "internalType": "address[]",
+        "name": "collateralTokens",
+        "type": "address[]"
       },
       {
-        "internalType": "uint256",
-        "name": "totalCollateral",
-        "type": "uint256"
+        "internalType": "uint256[]",
+        "name": "collateralAmounts",
+        "type": "uint256[]"
+      },
+      {
+        "internalType": "address[]",
+        "name": "loanTokens",
+        "type": "address[]"
+      },
+      {
+        "internalType": "uint256[]",
+        "name": "loanAmounts",
+        "type": "uint256[]"
       },
       {
         "internalType": "uint256",
@@ -636,6 +747,11 @@
     ],
     "name": "loans",
     "outputs": [
+      {
+        "internalType": "uint128",
+        "name": "loanId",
+        "type": "uint128"
+      },
       {
         "internalType": "address",
         "name": "borrower",

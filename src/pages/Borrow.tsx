@@ -1,4 +1,13 @@
+import LoanForm from "../components/LoanForm";
+import PriceTicker from "../components/PriceTicker";
+
 const Borrow = () => {
-    return <div>Borrow Page Content</div>;
+  return (
+    <div className="mt-8 space-y-6">
+      <PriceTicker />
+      <LoanForm />
+    </div>
+  );
 };
-export default Borrow; 
+
+export default Borrow;

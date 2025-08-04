@@ -8,6 +8,7 @@ contract DeFi {
     enum LoanStatus { Requested, Funded, Repaid, Defaulted, Cancelled }
 
     struct Loan {
+        uint128 loanId; 
         address borrower;
         address lender;
         address collateralToken;
@@ -28,11 +29,11 @@ contract DeFi {
     mapping(address => bool) public allowedLoanTokens;
     uint256 public constant MIN_COLLATERAL_RATIO = 150; // 150%
 
-    event LoanRequested(uint128 loanId, address borrower, uint128 amount);
-    event LoanFunded(uint128 loanId, address lender);
-    event LoanRepaid(uint128 loanId);
+    event LoanRequested(uint128 indexed loanId, address indexed borrower, uint128 amount, address indexed loanToken);
+    event LoanFunded(uint128 indexed loanId, address indexed lender);
+    event LoanRepaid(uint128 indexed loanId, uint128 amount);
     event LoanDefaulted(uint128 indexed loanId, address indexed borrower, address indexed lender);
-    event LoanCancelled(uint128 loanId, address borrower);
+    event LoanCancelled(uint128 indexed loanId, address indexed borrower);
 
     constructor(address[] memory _allowedCollateral, address[] memory _allowedLoanTokens) {
         for (uint i = 0; i < _allowedCollateral.length; i++) {
@@ -98,21 +99,22 @@ contract DeFi {
         // uint256 collateralRatio = (collateralValue * 100) / _loanAmount;
 
         loans[loanCounter] = Loan({
-            borrower: msg.sender,
-            lender: address(0),
-            collateralToken: _collateralToken,
-            loanToken: _loanToken,
-            collateralAmount: _collateralAmount,
-            loanAmount: _loanAmount,
-            interestRate: _interestRate,
-            startTime: 0,
-            duration: _duration,
-            status: LoanStatus.Requested
-        });
+        loanId: loanCounter, // loanId 
+        borrower: msg.sender,
+        lender: address(0),
+        collateralToken: _collateralToken,
+        loanToken: _loanToken,
+        collateralAmount: _collateralAmount,
+        loanAmount: _loanAmount,
+        interestRate: _interestRate,
+        startTime: 0,
+        duration: _duration,
+        status: LoanStatus.Requested
+    });
    
         userLoans[msg.sender].push(loanCounter);
         allLoanIds.push(loanCounter);
-        emit LoanRequested(loanCounter, msg.sender, _loanAmount);
+        emit LoanRequested(loanCounter, msg.sender, _loanAmount, _loanToken);
         unchecked {
             loanCounter++;
         }
@@ -140,6 +142,35 @@ contract DeFi {
         }      
 
         return (ids, result);
+    }
+    
+    function getLoanDetails(uint128 loanId) external view returns (
+        uint128,
+        address,
+        address,
+        address,
+        address,
+        uint128,
+        uint128,
+        uint16,
+        uint256,
+        uint256,
+        LoanStatus
+    ) {
+        Loan memory loan = loans[loanId];
+        return (
+            loan.loanId,
+            loan.borrower,
+            loan.lender,
+            loan.collateralToken,
+            loan.loanToken,
+            loan.collateralAmount,
+            loan.loanAmount,
+            loan.interestRate,
+            loan.startTime,
+            loan.duration,
+            loan.status
+        );
     }
 
     // Get all loans for a specific user
@@ -205,8 +236,8 @@ contract DeFi {
         require(loan.status == LoanStatus.Funded, "Loan not active for repayment");
         require(msg.sender == loan.borrower, "Only borrower can repay");
 
-        uint256 interest = (loan.loanAmount * loan.interestRate) / 10000;
-        uint256 totalRepayment = loan.loanAmount + interest;
+        uint128 interest = (loan.loanAmount * loan.interestRate) / 10000;
+        uint128 totalRepayment = loan.loanAmount + interest;
 
         require(
             IERC20(loan.loanToken).transferFrom(msg.sender, loan.lender, totalRepayment),
@@ -221,7 +252,7 @@ contract DeFi {
 
         loan.status = LoanStatus.Repaid;
 
-        emit LoanRepaid(_loanId);
+        emit LoanRepaid(_loanId, totalRepayment);
     }
 
     function isLoanActive(uint128 _loanId) public view returns (bool) {
@@ -274,20 +305,77 @@ contract DeFi {
     // ========== ANALYTICS FUNCTIONS ==========
 
     function getUserStats(address user) external view returns (
-    uint256 totalBorrowed,
-    uint256 totalCollateral,
+    address[] memory collateralTokens,
+    uint256[] memory collateralAmounts,
+    address[] memory loanTokens,
+    uint256[] memory loanAmounts,
     uint256 activeLoans
-    ) {
-        uint128[] memory loanIds = userLoans[user];
-        for (uint i = 0; i < loanIds.length; i++) {
-            Loan memory loan = loans[loanIds[i]];
-            if (loan.status == LoanStatus.Funded && loan.status != LoanStatus.Repaid) {
-                activeLoans++;
-                totalBorrowed += loan.loanAmount;
-                totalCollateral += loan.collateralAmount;
+) {
+    uint128[] memory loanIds = userLoans[user];
+
+    address[] memory tempCollateralTokens = new address[](loanIds.length);
+    uint256[] memory tempCollateralAmounts = new uint256[](loanIds.length);
+    uint256 collateralTypes = 0;
+
+    address[] memory tempLoanTokens = new address[](loanIds.length);
+    uint256[] memory tempLoanAmounts = new uint256[](loanIds.length);
+    uint256 loanTypes = 0;
+
+    for (uint i = 0; i < loanIds.length; i++) {
+        Loan memory loan = loans[loanIds[i]];
+        if (loan.status == LoanStatus.Funded || loan.status == LoanStatus.Requested) {
+            activeLoans++;
+
+            // Collateral aggregation
+            bool foundCollateral = false;
+            for (uint j = 0; j < collateralTypes; j++) {
+                if (tempCollateralTokens[j] == loan.collateralToken) {
+                    tempCollateralAmounts[j] += loan.collateralAmount;
+                    foundCollateral = true;
+                    break;
+                }
+            }
+            if (!foundCollateral) {
+                tempCollateralTokens[collateralTypes] = loan.collateralToken;
+                tempCollateralAmounts[collateralTypes] = loan.collateralAmount;
+                collateralTypes++;
+            }
+
+            // Borrowed aggregation (only for Funded loans)
+            if (loan.status == LoanStatus.Funded) {
+                bool foundLoan = false;
+                for (uint j = 0; j < loanTypes; j++) {
+                    if (tempLoanTokens[j] == loan.loanToken) {
+                        tempLoanAmounts[j] += loan.loanAmount;
+                        foundLoan = true;
+                        break;
+                    }
+                }
+                if (!foundLoan) {
+                    tempLoanTokens[loanTypes] = loan.loanToken;
+                    tempLoanAmounts[loanTypes] = loan.loanAmount;
+                    loanTypes++;
+                }
             }
         }
     }
+
+    // Resize and return final arrays
+    collateralTokens = new address[](collateralTypes);
+    collateralAmounts = new uint256[](collateralTypes);
+    for (uint i = 0; i < collateralTypes; i++) {
+        collateralTokens[i] = tempCollateralTokens[i];
+        collateralAmounts[i] = tempCollateralAmounts[i];
+    }
+
+    loanTokens = new address[](loanTypes);
+    loanAmounts = new uint256[](loanTypes);
+    for (uint i = 0; i < loanTypes; i++) {
+        loanTokens[i] = tempLoanTokens[i];
+        loanAmounts[i] = tempLoanAmounts[i];
+    }
+}
+
 
     function getUserLoanHistory(address user) external view returns (Loan[] memory) {
         uint128[] memory loanIds = userLoans[user];

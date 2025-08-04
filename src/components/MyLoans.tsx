@@ -160,8 +160,7 @@ const MyLoans = () => {
                         CONTRACT_ABI,
                         signer
                       );
-                      console.log("Ithaan da id: ", loan.id);
-                      const tx = await contract.cancelLoan(loan.id); // if needed, use correct index
+                      const tx = await contract.cancelLoan(loan.id);
                       await tx.wait();
                       alert("Loan cancelled successfully.");
                       window.location.reload();
@@ -196,10 +195,9 @@ const MyLoans = () => {
                         "0x08210F9170F89Ab7658F0B5E3fF39b0E03C594D4"
                       ) {
                         repaymentAmount = ethers.parseUnits(
-                          (
-                            parseFloat(loan.amount) *
-                            (1 + loan.interest / 100)
-                          ).toString(),
+                          (parseFloat(loan.amount) * (1 + loan.interest / 100))
+                            .toFixed(6)
+                            .toString(),
                           6
                         );
                       } else {

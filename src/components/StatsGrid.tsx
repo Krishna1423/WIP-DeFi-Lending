@@ -1,38 +1,38 @@
-import Card from "./Card";
+import React from "react";
 
-// const StatsGrid = () => {
-//     return (
-//         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-//             <div className="bg-blue-50 p-4 rounded-lg">
-//                 <h3 className="font-medium">Total Balance</h3>
-//                 <p className="text-2xl font-bold">$5,000</p>
-//             </div>
-//             <div className="bg-green-50 p-4 rounded-lg">
-//                 <h3 className="font-medium">Active Loans</h3>
-//                 <p className="text-2xl font-bold">2</p>
-//             </div>
-//             <div className="bg-purple-50 p-4 rounded-lg">
-//                 <h3 className="font-medium">Pending</h3>
-//                 <p className="text-2xl font-bold">$1,200</p>
-//             </div>
-//         </div>
-//     );
-// };
-
-interface StatsProps {
-  stats: {
-    totalBorrowed: number;
-    totalCollateral: number;
-    activeLoans: number;
-  };
+interface StatsGridProps {
+  stats: Record<string, { borrowed: number; collateral: number }>;
+  activeLoans: number;
 }
 
-const StatsGrid: React.FC<StatsProps> = ({ stats }) => {
+const StatsGrid: React.FC<StatsGridProps> = ({ stats, activeLoans }) => {
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-      <Card title="Total Borrowed">{stats.totalBorrowed} DAI</Card>
-      <Card title="Total Collateral">{stats.totalCollateral} ETH</Card>
-      <Card title="Active Loans">{stats.activeLoans}</Card>
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+      {Object.entries(stats).map(([symbol, { borrowed, collateral }]) => (
+        <div
+          key={symbol}
+          className="bg-white p-5 rounded-lg shadow-md border border-gray-100"
+        >
+          <h3 className="text-xl font-semibold text-gray-800 mb-2">
+            {symbol} Summary
+          </h3>
+          <p className="text-sm text-gray-600">
+            <span className="font-medium text-gray-700">Total Borrowed:</span>{" "}
+            {borrowed.toFixed(2)} {symbol}
+          </p>
+          <p className="text-sm text-gray-600">
+            <span className="font-medium text-gray-700">Collateral:</span>{" "}
+            {collateral.toFixed(2)} {symbol}
+          </p>
+        </div>
+      ))}
+
+      <div className="bg-white p-5 rounded-lg shadow-md border border-gray-100">
+        <h3 className="text-xl font-semibold text-gray-800 mb-2">
+          Active Loans
+        </h3>
+        <p className="text-sm text-gray-600">{activeLoans}</p>
+      </div>
     </div>
   );
 };
