@@ -2,45 +2,6 @@
   {
     "inputs": [
       {
-        "internalType": "uint128",
-        "name": "_loanId",
-        "type": "uint128"
-      }
-    ],
-    "name": "cancelLoan",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint128",
-        "name": "_loanId",
-        "type": "uint128"
-      }
-    ],
-    "name": "fundLoan",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint128",
-        "name": "_loanId",
-        "type": "uint128"
-      }
-    ],
-    "name": "liquidateLoan",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
         "internalType": "address[]",
         "name": "_allowedCollateral",
         "type": "address[]"
@@ -127,10 +88,22 @@
         "type": "uint128"
       },
       {
+        "indexed": true,
+        "internalType": "address",
+        "name": "borrower",
+        "type": "address"
+      },
+      {
         "indexed": false,
         "internalType": "uint128",
         "name": "amount",
         "type": "uint128"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "timestamp",
+        "type": "uint256"
       }
     ],
     "name": "LoanRepaid",
@@ -168,54 +141,16 @@
     "type": "event"
   },
   {
-    "inputs": [
-      {
-        "internalType": "uint128",
-        "name": "_loanId",
-        "type": "uint128"
-      }
-    ],
-    "name": "repayLoan",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "_collateralToken",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "_loanToken",
-        "type": "address"
-      },
-      {
-        "internalType": "uint128",
-        "name": "_collateralAmount",
-        "type": "uint128"
-      },
-      {
-        "internalType": "uint128",
-        "name": "_loanAmount",
-        "type": "uint128"
-      },
-      {
-        "internalType": "uint16",
-        "name": "_interestRate",
-        "type": "uint16"
-      },
+    "inputs": [],
+    "name": "MIN_COLLATERAL_RATIO",
+    "outputs": [
       {
         "internalType": "uint256",
-        "name": "_duration",
+        "name": "",
         "type": "uint256"
       }
     ],
-    "name": "requestLoan",
-    "outputs": [],
-    "stateMutability": "nonpayable",
+    "stateMutability": "view",
     "type": "function"
   },
   {
@@ -278,6 +213,32 @@
   {
     "inputs": [
       {
+        "internalType": "uint128",
+        "name": "_loanId",
+        "type": "uint128"
+      }
+    ],
+    "name": "cancelLoan",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint128",
+        "name": "_loanId",
+        "type": "uint128"
+      }
+    ],
+    "name": "fundLoan",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
         "internalType": "address",
         "name": "user",
         "type": "address"
@@ -335,6 +296,11 @@
           {
             "internalType": "uint256",
             "name": "duration",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "timestamp",
             "type": "uint256"
           },
           {
@@ -413,6 +379,11 @@
             "type": "uint256"
           },
           {
+            "internalType": "uint256",
+            "name": "timestamp",
+            "type": "uint256"
+          },
+          {
             "internalType": "enum DeFi.LoanStatus",
             "name": "status",
             "type": "uint8"
@@ -475,6 +446,11 @@
         "internalType": "uint16",
         "name": "",
         "type": "uint16"
+      },
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
       },
       {
         "internalType": "uint256",
@@ -558,6 +534,11 @@
             "type": "uint256"
           },
           {
+            "internalType": "uint256",
+            "name": "timestamp",
+            "type": "uint256"
+          },
+          {
             "internalType": "enum DeFi.LoanStatus",
             "name": "status",
             "type": "uint8"
@@ -631,6 +612,11 @@
           {
             "internalType": "uint256",
             "name": "duration",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "timestamp",
             "type": "uint256"
           },
           {
@@ -725,6 +711,19 @@
     "type": "function"
   },
   {
+    "inputs": [
+      {
+        "internalType": "uint128",
+        "name": "_loanId",
+        "type": "uint128"
+      }
+    ],
+    "name": "liquidateLoan",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
     "inputs": [],
     "name": "loanCounter",
     "outputs": [
@@ -798,6 +797,11 @@
         "type": "uint256"
       },
       {
+        "internalType": "uint256",
+        "name": "timestamp",
+        "type": "uint256"
+      },
+      {
         "internalType": "enum DeFi.LoanStatus",
         "name": "status",
         "type": "uint8"
@@ -807,16 +811,54 @@
     "type": "function"
   },
   {
-    "inputs": [],
-    "name": "MIN_COLLATERAL_RATIO",
-    "outputs": [
+    "inputs": [
+      {
+        "internalType": "uint128",
+        "name": "_loanId",
+        "type": "uint128"
+      }
+    ],
+    "name": "repayLoan",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_collateralToken",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "_loanToken",
+        "type": "address"
+      },
+      {
+        "internalType": "uint128",
+        "name": "_collateralAmount",
+        "type": "uint128"
+      },
+      {
+        "internalType": "uint128",
+        "name": "_loanAmount",
+        "type": "uint128"
+      },
+      {
+        "internalType": "uint16",
+        "name": "_interestRate",
+        "type": "uint16"
+      },
       {
         "internalType": "uint256",
-        "name": "",
+        "name": "_duration",
         "type": "uint256"
       }
     ],
-    "stateMutability": "view",
+    "name": "requestLoan",
+    "outputs": [],
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {

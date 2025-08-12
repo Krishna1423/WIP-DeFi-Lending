@@ -9,8 +9,7 @@ import {
   PROVIDER_KEY,
 } from "../constants/contract";
 import { tokenNameMap } from "../constants/tokens";
-import { useTokenDecimals } from "../hooks/useTokenDecimals";
-import { getFormattedAmount } from "../hooks/useTokenDecimals";
+import { formatTokenAmount } from "../utils/useTokenDecimals";
 
 type Loan = {
   id: number;
@@ -62,11 +61,11 @@ export default function LendMarketplace() {
 
         const requestedLoans: Loan[] = await Promise.all(
           loanStructs.map(async (loan: any, index: number) => {
-            const amountFormatted = await getFormattedAmount(
+            const amountFormatted = await formatTokenAmount(
               loan.loanToken,
               loan.loanAmount
             );
-            const collateralFormatted = await getFormattedAmount(
+            const collateralFormatted = await formatTokenAmount(
               loan.collateralToken,
               loan.collateralAmount
             );

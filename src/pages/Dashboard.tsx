@@ -1,6 +1,6 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { useAccount } from "wagmi";
-import { Contract, ethers, formatUnits } from "ethers";
+import { Contract, ethers } from "ethers";
 import {
   CONTRACT_ABI,
   CONTRACT_ADDRESS,
@@ -13,23 +13,19 @@ import UserDashboard from "../components/UserDashboard";
 
 const Dashboard = () => {
   const { address, isConnected } = useAccount();
-  const provider = new ethers.JsonRpcProvider(PROVIDER_KEY);
-  const [view, setView] = useState<"dashboard" | "lend">("dashboard");
+
+  // ✅ Stable provider
+  const provider = useMemo(() => new ethers.JsonRpcProvider(PROVIDER_KEY), []);
 
   const [loanStats, setLoanStats] = useState<
-    Record<
-      string,
-      {
-        borrowed: number;
-        collateral: number;
-      }
-    >
+    Record<string, { borrowed: number; collateral: number }>
   >({});
-
   const [activeLoans, setActiveLoans] = useState<number>(0);
   const [showLoanForm, setShowLoanForm] = useState(false);
 
   useEffect(() => {
+    if (!isConnected || !address) return;
+
     const fetchStats = async () => {
       try {
         const contract = new Contract(CONTRACT_ADDRESS, CONTRACT_ABI, provider);
@@ -46,16 +42,16 @@ const Dashboard = () => {
           { borrowed: number; collateral: number }
         > = {};
 
-        // Process collateral stats
+        // Collateral stats
         collateralTokens.forEach((tokenAddress: string, index: number) => {
-          const symbol =
-            tokenNameMap[tokenAddress.toLowerCase()] ||
-            tokenAddress.slice(0, 6);
+          const lower = tokenAddress.toLowerCase();
+          const symbol = tokenNameMap[lower] || tokenAddress.slice(0, 6);
           let amount = 0;
+
+          // ✅ Fix logical OR bug — the old code's OR was always truthy
           if (
-            tokenAddress.toLowerCase() ===
-              "0x08210f9170f89ab7658f0b5e3ff39b0e03c594d4" ||
-            "0x1c7d4b196cb0c7b01d743fbc6116a902379c7238"
+            lower === "0x08210f9170f89ab7658f0b5e3ff39b0e03c594d4" ||
+            lower === "0x1c7d4b196cb0c7b01d743fbc6116a902379c7238"
           ) {
             amount = Number(collateralAmounts[index]) / 1e6;
           } else {
@@ -68,11 +64,10 @@ const Dashboard = () => {
           parsedStats[symbol].collateral = amount;
         });
 
-        // Process loan (borrowed) stats
+        // Loan stats
         loanTokens.forEach((tokenAddress: string, index: number) => {
-          const symbol =
-            tokenNameMap[tokenAddress.toLowerCase()] ||
-            tokenAddress.slice(0, 6);
+          const lower = tokenAddress.toLowerCase();
+          const symbol = tokenNameMap[lower] || tokenAddress.slice(0, 6);
           const amount = Number(loanAmounts[index]) / 1e6;
 
           if (!parsedStats[symbol]) {
@@ -81,6 +76,7 @@ const Dashboard = () => {
           parsedStats[symbol].borrowed = amount;
         });
 
+        // ✅ Single batched update
         setLoanStats(parsedStats);
         setActiveLoans(Number(activeLoansCount));
       } catch (error) {
@@ -88,9 +84,7 @@ const Dashboard = () => {
       }
     };
 
-    if (isConnected && address) {
-      fetchStats();
-    }
+    fetchStats();
   }, [address, isConnected, provider]);
 
   return (
@@ -100,6 +94,7 @@ const Dashboard = () => {
       <StatsGrid stats={loanStats} activeLoans={activeLoans} />
 
       <div className="grid md:grid-cols-2 gap-6 mt-8">
+        <UserDashboard />
         <Card title="Recent Activity">
           <TransactionHistory userAddress={address} />
         </Card>
@@ -112,10 +107,6 @@ const Dashboard = () => {
             Request Loan
           </button>
         </Card>
-      </div>
-
-      <div className="grid md:grid-cols-2 gap-6 mt-8">
-        <UserDashboard />
       </div>
 
       {showLoanForm && (

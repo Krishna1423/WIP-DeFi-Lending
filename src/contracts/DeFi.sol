@@ -18,6 +18,7 @@ contract DeFi {
         uint16 interestRate; // in basis points (e.g., 500 = 5%)
         uint256 startTime;
         uint256 duration; // in seconds
+        uint256 timestamp;
         LoanStatus status;
     }
 
@@ -31,7 +32,7 @@ contract DeFi {
 
     event LoanRequested(uint128 indexed loanId, address indexed borrower, uint128 amount, address indexed loanToken);
     event LoanFunded(uint128 indexed loanId, address indexed lender);
-    event LoanRepaid(uint128 indexed loanId, uint128 amount);
+    event LoanRepaid(uint128 indexed loanId, address indexed borrower, uint128 amount, uint256 timestamp);
     event LoanDefaulted(uint128 indexed loanId, address indexed borrower, address indexed lender);
     event LoanCancelled(uint128 indexed loanId, address indexed borrower);
 
@@ -109,6 +110,7 @@ contract DeFi {
         interestRate: _interestRate,
         startTime: 0,
         duration: _duration,
+        timestamp: block.timestamp,
         status: LoanStatus.Requested
     });
    
@@ -155,6 +157,7 @@ contract DeFi {
         uint16,
         uint256,
         uint256,
+        uint256,
         LoanStatus
     ) {
         Loan memory loan = loans[loanId];
@@ -169,6 +172,7 @@ contract DeFi {
             loan.interestRate,
             loan.startTime,
             loan.duration,
+            loan.timestamp,
             loan.status
         );
     }
@@ -252,7 +256,7 @@ contract DeFi {
 
         loan.status = LoanStatus.Repaid;
 
-        emit LoanRepaid(_loanId, totalRepayment);
+        emit LoanRepaid(_loanId, msg.sender, totalRepayment, block.timestamp);
     }
 
     function isLoanActive(uint128 _loanId) public view returns (bool) {
@@ -282,7 +286,6 @@ contract DeFi {
 
         emit LoanDefaulted(_loanId, loan.borrower, loan.lender);
     }
-
 
     function cancelLoan(uint128 _loanId) external {
         Loan storage loan = loans[_loanId];
@@ -387,24 +390,4 @@ contract DeFi {
 
         return result;
     }
-
-    // function getUserLoanHistory(address user) external view returns (Loan[] memory) {
-    //     uint256 count = 0;
-    //     for (uint128 i = 1; i <= loanCounter; i++) {
-    //         if (loans[i].borrower == user) {
-    //             count++;
-    //         }
-    //     }
-
-    //     Loan[] memory history = new Loan[](count);
-    //     uint256 index = 0;
-    //     for (uint128 i = 1; i <= loanCounter; i++) {
-    //         if (loans[i].borrower == user) {
-    //             history[index] = loans[i];
-    //             index++;
-    //         }
-    //     }
-
-    //     return history;
-    // }
 }

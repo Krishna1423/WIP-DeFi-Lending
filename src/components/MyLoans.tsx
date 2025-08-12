@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useAccount } from "wagmi";
 import { ethers } from "ethers";
-import { getFormattedAmount } from "../hooks/useTokenDecimals";
+import { formatTokenAmount } from "../utils/useTokenDecimals";
 import { Card } from "../components";
 import {
   CONTRACT_ABI,
@@ -67,11 +67,11 @@ const MyLoans = () => {
 
         const parsedLoans: Loan[] = await Promise.all(
           loansData.map(async (loan: any, index: number) => {
-            const amountFormatted = await getFormattedAmount(
+            const amountFormatted = await formatTokenAmount(
               loan.loanToken,
               loan.loanAmount
             );
-            const collateralFormatted = await getFormattedAmount(
+            const collateralFormatted = await formatTokenAmount(
               loan.collateralToken,
               loan.collateralAmount
             );
