@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.20;
 
+pragma solidity ^0.8.20;
 import "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol";
 import "@openzeppelin/contracts/utils/math/Math.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
@@ -32,7 +32,6 @@ contract DeFi is Ownable, AutomationCompatible {
     mapping(address => uint128[]) public userLoans;  // borrower => list of loan IDs
     mapping(address => bool) public allowedCollateralTokens;
     mapping(address => bool) public allowedLoanTokens;
-    //mapping(address => address) public priceFeeds; // token => Chainlink feed
 
     uint256 public constant MIN_COLLATERAL_RATIO = 150; // 150%
     uint256 public liquidationThreshold = 115; 
@@ -40,7 +39,7 @@ contract DeFi is Ownable, AutomationCompatible {
     // (optional) scan window for Automation to cap gas
     uint256 public keeperScanLimit = 50;
 
-    // Chainlink price feeds (Sepolia addresses as example)
+    // Chainlink price feeds (Sepolia addresses)
     AggregatorV3Interface internal priceFeedUSDC = AggregatorV3Interface(0xA2F78ab2355fe2f984D808B5CeE7FD0A93D5270E);
     AggregatorV3Interface internal priceFeedDAI  = AggregatorV3Interface(0x14866185B1962B63C3Ea9E03Bc1da838bab34C19);
     AggregatorV3Interface internal priceFeedLINK = AggregatorV3Interface(0xc59E3633BAAC79493d908e63626716e204A45EdF);
@@ -61,7 +60,7 @@ contract DeFi is Ownable, AutomationCompatible {
         }
     }
 
-    // *** COMMENT/DISABLE THIS FUNCTION FOR ORACLE ***
+    // *** TO TEST WITH MOCK PRICE WITHOUT ORACLE   ***
     // function getMockPrice(address token) internal pure returns (uint256) {
     //     //sepolia usdc
     //     if (token == 0x1c7D4B196Cb0C7B01d743Fbc6116a902379C7238) return 1e18;  // $1
