@@ -10,11 +10,12 @@ import { tokenNameMap } from "../constants/tokens";
 import { Card, StatsGrid, TransactionHistory } from "../components";
 import LoanForm from "../components/LoanForm";
 import UserDashboard from "../components/UserDashboard";
+import PriceTicker from "../components/PriceTicker";
+import AppFooter from "../components/AppFooter";
 
 const Dashboard = () => {
   const { address, isConnected } = useAccount();
 
-  // ✅ Stable provider
   const provider = useMemo(() => new ethers.JsonRpcProvider(PROVIDER_KEY), []);
 
   const [loanStats, setLoanStats] = useState<
@@ -48,7 +49,6 @@ const Dashboard = () => {
           const symbol = tokenNameMap[lower] || tokenAddress.slice(0, 6);
           let amount = 0;
 
-          // ✅ Fix logical OR bug — the old code's OR was always truthy
           if (
             lower === "0x08210f9170f89ab7658f0b5e3ff39b0e03c594d4" ||
             lower === "0x1c7d4b196cb0c7b01d743fbc6116a902379c7238"
@@ -76,7 +76,7 @@ const Dashboard = () => {
           parsedStats[symbol].borrowed = amount;
         });
 
-        // ✅ Single batched update
+        // Single batched update
         setLoanStats(parsedStats);
         setActiveLoans(Number(activeLoansCount));
       } catch (error) {
@@ -111,9 +111,14 @@ const Dashboard = () => {
 
       {showLoanForm && (
         <div className="mt-8">
+          <PriceTicker />
           <LoanForm />
         </div>
       )}
+      <div>
+        <br></br>
+        <AppFooter />
+      </div>
     </div>
   );
 };
