@@ -84,7 +84,28 @@ const LoanForm = () => {
       setTxHash(tx.hash);
     } catch (err: any) {
       console.error("Loan request error:", err);
-      setError(err.message || "Transaction failed.");
+      let friendlyError = "Transaction failed.";
+
+      // 1. Try ethers.js v6 "reason"
+      if (err.reason) {
+        friendlyError = err.reason;
+      }
+      // 2. Try contract revert with Error(string)
+      else if (err.error && err.error.message) {
+        friendlyError = err.error.message;
+      }
+      // 3. Try parsing "execution reverted: ..."
+      else if (err.message) {
+        const match = err.message.match(/execution reverted(?:\:)?\s*(.*)/i);
+        friendlyError = match && match[1] ? match[1] : err.message;
+      }
+
+      // cap error length so UI doesn't break
+      if (friendlyError.length > 120) {
+        friendlyError = friendlyError.slice(0, 120) + "...";
+      }
+
+      setError(friendlyError);
     } finally {
       setIsSubmitting(false);
     }
@@ -106,7 +127,7 @@ const LoanForm = () => {
             className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-primary"
           >
             <option value="ETH">ETH</option>
-            <option value="WETH">WETH</option>
+            <option value="LINK">LINK</option>
             <option value="DAI">DAI</option>
             <option value="USDC">USDC</option>
             <option value="EURC">EURC</option>
@@ -138,7 +159,7 @@ const LoanForm = () => {
           >
             <option value="ETH">ETH</option>
             <option value="DAI">DAI</option>
-            <option value="WETH">WETH</option>
+            <option value="LINK">LINK</option>
             <option value="USDC">USDC</option>
             <option value="EURC">EURC</option>
           </select>

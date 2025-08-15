@@ -11,8 +11,10 @@ const decimalsCache: { [address: string]: number } = {};
 const provider = new ethers.JsonRpcProvider(PROVIDER_KEY);
 
 const FIXED_DECIMALS: Record<string, number> = {
-  // USDC (case-insensitive check)
+  // EURC (case-insensitive check)
   "0x08210f9170f89ab7658f0b5e3ff39b0e03c594d4": 6,
+  // LINK
+  "0x6641415a61bce80d97a715054d1334360ab833eb": 18,
 };
 
 /**

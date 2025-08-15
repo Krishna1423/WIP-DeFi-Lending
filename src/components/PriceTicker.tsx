@@ -18,7 +18,7 @@ const TOKENS: TokenInfo[] = [
   { name: "Cardano", id: "cardano", symbol: "ADA" },
   { name: "Polkadot", id: "polkadot", symbol: "DOT" },
   { name: "Uniswap", id: "uniswap", symbol: "UNI" },
-  { name: "Aave", id: "aave", symbol: "AAVE" },
+  { name: "Link", id: "link", symbol: "LINK" },
 ];
 
 type CoinGeckoResponse = {
