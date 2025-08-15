@@ -4,7 +4,6 @@ import App from "./App";
 import { WagmiProvider } from "wagmi";
 import { config } from "./providers/wallet";
 import { RainbowKitProvider } from "@rainbow-me/rainbowkit";
-//import '@fortawesome/fontawesome-free/css/all.min.css';
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
