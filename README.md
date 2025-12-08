@@ -17,5 +17,9 @@ Before cloning and installing the project, ensure the following are installed gl
 1. Clone the github repository into your local.
 2. Navigate to the project root directory.
 3. Install the dependencies using the command `npm install`.
-4. Run the command `npm run build` to compile and build the application.
-5. Start running the application using `npm run dev`, which will deploy the app in the localhost port 5173 or other available port.
+4. Create a `.env.local` file in the root directory with your Alchemy API key:
+   ```
+   VITE_ALCHEMY_API_KEY=https://eth-sepolia.g.alchemy.com/v2/YOUR_API_KEY_HERE
+   ```
+5. Run the command `npm run build` to compile and build the application.
+6. Start running the application using `npm run dev`, which will deploy the app in the localhost port 5173 or other available port.
