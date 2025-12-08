@@ -20,6 +20,30 @@ interface Props {
   userAddress?: `0x${string}`;
 }
 
+// Helper function to query events in chunks (Alchemy free tier limit: 10 blocks)
+const queryFilterInChunks = async (
+  contract: ethers.Contract,
+  filter: ethers.EventFilter,
+  fromBlock: number,
+  toBlock: number,
+  chunkSize: number = 10
+): Promise<ethers.Log[]> => {
+  const allEvents: ethers.Log[] = [];
+  
+  for (let start = fromBlock; start <= toBlock; start += chunkSize) {
+    const end = Math.min(start + chunkSize - 1, toBlock);
+    try {
+      const events = await contract.queryFilter(filter, start, end);
+      allEvents.push(...events);
+    } catch (error) {
+      console.warn(`Error querying blocks ${start}-${end}:`, error);
+      // Continue with next chunk even if one fails
+    }
+  }
+  
+  return allEvents;
+};
+
 const TransactionHistory = ({ userAddress }: Props) => {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
 
@@ -77,11 +101,13 @@ const TransactionHistory = ({ userAddress }: Props) => {
           if (Number(loan.status) === 1) {
             const filterFunded = contract.filters.LoanFunded(loan.loanId);
             const latestBlock = await provider.getBlockNumber();
-            const fromBlock = latestBlock - 499;
-            const eventsFunded = await contract.queryFilter(
+            const fromBlock = Math.max(0, latestBlock - 499);
+            const eventsFunded = await queryFilterInChunks(
+              contract,
               filterFunded,
               fromBlock,
-              latestBlock
+              latestBlock,
+              10
             );
             if (eventsFunded.length > 0) {
               const evtFunded = eventsFunded[eventsFunded.length - 1];
@@ -106,11 +132,13 @@ const TransactionHistory = ({ userAddress }: Props) => {
           if (Number(loan.status) === 3) {
             const filterCancelled = contract.filters.LoanCancelled(loan.loanId);
             const latestBlock = await provider.getBlockNumber();
-            const fromBlock = latestBlock - 499;
-            const eventsCancelled = await contract.queryFilter(
+            const fromBlock = Math.max(0, latestBlock - 499);
+            const eventsCancelled = await queryFilterInChunks(
+              contract,
               filterCancelled,
               fromBlock,
-              latestBlock
+              latestBlock,
+              10
             );
             if (eventsCancelled.length > 0) {
               const evtCancelled = eventsCancelled[eventsCancelled.length - 1];
@@ -135,11 +163,13 @@ const TransactionHistory = ({ userAddress }: Props) => {
           if (Number(loan.status) === 2) {
             const filterRepaid = contract.filters.LoanRepaid(loan.loanId);
             const latestBlock = await provider.getBlockNumber();
-            const fromBlock = latestBlock - 499;
-            const eventsRepaid = await contract.queryFilter(
+            const fromBlock = Math.max(0, latestBlock - 499);
+            const eventsRepaid = await queryFilterInChunks(
+              contract,
               filterRepaid,
               fromBlock,
-              latestBlock
+              latestBlock,
+              10
             );
             if (eventsRepaid.length > 0) {
               const evtRepaid = eventsRepaid[eventsRepaid.length - 1];

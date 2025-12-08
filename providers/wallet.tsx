@@ -7,9 +7,7 @@ export const config = getDefaultConfig({
   projectId: "DeFi",
   chains: [sepolia],
   transports: {
-    [sepolia.id]: http(
-      "https://eth-sepolia.g.alchemy.com/v2/A1NzYyo3iFc9q1UTZw1Z7EkIpVlbEKHQ" //Alchemy API Keys
-    ),
+    [sepolia.id]: http(import.meta.env.VITE_ALCHEMY_API_KEY),
   },
   ssr: false, // Important for Vite compatibility
 });

@@ -11,16 +11,12 @@
   --font-main: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0f172a;
-    --foreground: #f1f5f9;
-  }
-}
+/* Removed dark mode query to prevent faded text on light background */
+/* If dark mode is needed, implement it properly with matching backgrounds */
 
 body {
   background: linear-gradient(to bottom right, #f0f4ff, #ffffff);
-  color: var(--foreground);
+  color: #1a1a1a;
   font-family: var(--font-main);
   transition: background 0.3s ease, color 0.3s ease;
 }

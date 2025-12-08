@@ -60,8 +60,8 @@ const PriceTicker = () => {
   }, []);
 
   return (
-    <div className="bg-gray-100 dark:bg-gray-800 p-4 rounded-xl shadow-md mb-6">
-      <h1 className="text-lg font-semibold mb-2">Live Prices</h1>
+    <div className="bg-gray-100 p-4 rounded-xl shadow-md mb-6">
+      <h1 className="text-lg font-semibold mb-2 text-gray-800">Live Prices</h1>
       <div className="flex flex-wrap gap-4">
         {prices.map(({ symbol, price, change }) => {
           const isUp = change >= 0;
@@ -69,13 +69,13 @@ const PriceTicker = () => {
           return (
             <div
               key={symbol}
-              className="bg-white dark:bg-gray-900 rounded-xl px-4 py-2 shadow flex items-center gap-2 min-w-[120px]"
+              className="bg-white rounded-xl px-4 py-2 shadow flex items-center gap-2 min-w-[120px]"
             >
-              <span className="font-bold">{symbol}</span>
-              <span>${price.toFixed(2)}</span>
+              <span className="font-bold text-gray-800">{symbol}</span>
+              <span className="text-gray-700">${price?.toFixed(2) || "0.00"}</span>
               <span
-                className={`flex items-center text-sm ${
-                  isUp ? "text-green-500" : "text-red-500"
+                className={`flex items-center text-sm font-medium ${
+                  isUp ? "text-green-600" : "text-red-600"
                 }`}
               >
                 <Icon size={16} className="mr-1" />

@@ -19,7 +19,7 @@ const App = () => {
     <WagmiProvider config={config}>
       <QueryClientProvider client={queryClient}>
         <RainbowKitProvider>
-          <Router>
+          <Router basename={import.meta.env.VITE_BASE_PATH || undefined}>
             <AppContent />
           </Router>
         </RainbowKitProvider>

@@ -8,3 +8,12 @@ declare module "*.css" {
 declare module "*.png";
 declare module "*.jpg";
 declare module "*.svg";
+
+// Vite environment variables
+interface ImportMetaEnv {
+  readonly VITE_ALCHEMY_API_KEY: string;
+}
+
+interface ImportMeta {
+  readonly env: ImportMetaEnv;
+}
